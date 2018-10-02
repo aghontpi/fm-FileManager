@@ -2,13 +2,13 @@
 
 > FileManager written in php with Object Oriented Programming.
 
-##NOTE THIS IS NOT COMPLETE YET, STILL IN DEVELOPMENT. I'LL UPDATE THIS IN MY SPARE TIME.
+## NOTE THIS IS NOT COMPLETE YET, STILL IN DEVELOPMENT. I'LL UPDATE THIS IN MY SPARE TIME.
 
-##Current Scope.
+## Current Scope.
 
 * Navigate through your server(traverse the directories).
 
-##TODO - I WOULD LIKE TO IMPLEMENT.
+## TODO - I WOULD LIKE TO IMPLEMENT.
 
 * can be enabled login with password..
 * can be enabled - connect with database to log every activity.
