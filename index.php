@@ -25,18 +25,72 @@ HTML section.
 */
 interface html{
 
-const topSection = "<!DOCTYPE html>
+const topSection = "
+                    <!DOCTYPE html>
                         <head>
                             <title>
                                 fm - FileManager.
                             </title>
+                            "
+                            .
+                            html::headStyle
+                            .
+                        "
                         </head>
                         <body>
                     ";
+                    
 
 const bottomSection = "</body>
                         </html>
                         ";
+
+const loginSection = "
+                    <div class='login-container'>
+                        <div class='logo'>
+                            <h3>fm-fileManager</h3>
+                        </div>
+                        <div class='form-container'>
+                            <form method='POST' action='index.php'>
+                                <br>
+                                <input type='text' placeholder='username' autocomplete='off'>
+                                <input type='password' placeholder='password' autocomplete='off'>
+                                <br>
+                                <button type='submit' class='btn'>Login</button> 
+                            </form>
+                        </div>
+                    </div>   
+                    ";
+const headStyle = "
+                <style>
+                    *{
+                    font-family:sans-serif;
+                    }
+                    .login-container{
+                        margin:0 auto;
+                        margin-top:10%;
+                        width:250px;
+                    }
+                    .logo{
+                        text-align:center;
+                    }
+                    .form-container{
+                        text-align:center;
+                    }
+                    .form-container form input{
+                        padding:5px;
+                        margin:5px;
+                        width:200px;
+                        background-color:white;
+                    }
+                    .btn{
+                     width:100px;
+                     padding:5px;
+                     border-radius:5px;
+                    }
+
+                </style>
+                  ";
 }
 
 /*
@@ -200,7 +254,7 @@ Description:
             authenticating user,
 Created date:13-OCT_2018,
 */
-class authHelper{
+class authHelper implements html{
     /*
     Author:bluepe (aka)Gopinath,
     Description:
@@ -223,13 +277,58 @@ class authHelper{
     public function checkSession(){
        return empty($_SESSION['authUser'])? false : true;
     }
+
+    /*
+    FunctionName:restrictAccess,
+    Author:bluepe (aka)Gopinath,
+    Description:To not permit to access content
+    Param:-,
+    Returns:-
+    created date:13-oct-2018,
+    */
+    public function restrictAccess(){
+        echo html::topSection;
+        echo "You are not authorized to access this content";
+        echo html::bottomSection;
+        die();
+    }
+
+    /*
+    FunctionName:redirectToLogin,
+    Author:bluepe (aka)Gopinath,
+    Description:route the user to login page.
+    Param:-,
+    Returns:-,
+    created date:13-oct-2018,
+    */
+    public function redirectToLogin(){
+        echo html::topSection;
+        echo html::loginSection;
+        echo html::bottomSection;
+        die();
+    }
 }
+
 
 /*
 Desc:For handling authentication.
 */
 $_OauthHelper = new authHelper();
-var_dump($_OauthHelper->checkSession());
+if(!$_OauthHelper->checkSession()){
+    
+    $_OauthHelper->redirectToLogin();
+
+    /*
+    Desc:
+        restrict access.
+        later use for ipspecific blocking/toomanylogin attempts.
+    $_OauthHelper->restrictAccess();
+    */
+}
+else{
+
+}
+
 
 /*
 Desc:Check for any post or get variables.
