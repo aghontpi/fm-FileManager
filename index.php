@@ -7,6 +7,17 @@ CreationDate:30-AUG-2018,
 */
 
 /*
+config section.
+*/
+interface config{
+    const hashForLogin = 'sha256';
+    /*
+    Desc:sha256 with 10000 rounds.
+    */
+    const hash = '$6$rounds=10000$fm-filemanager$2i9wK36ODOnmaBz6KT/pQKKEplOWtPBofN.vCYUYRjy0UJCnnK2GajkhhVMxWi1dEF.r/El/SxJq5RiRBSw8l/';
+}
+
+/*
 Images section:
 */
 interface images{
@@ -51,7 +62,7 @@ const loginSection = "
                             <h3>fm-fileManager</h3>
                         </div>
                         <div class='form-container'>
-                            <form method='POST' action='index.php'>
+                            <form method='POST' action='index.php/login'>
                                 <br>
                                 <input type='text' placeholder='username' autocomplete='off'>
                                 <input type='password' placeholder='password' autocomplete='off'>
@@ -63,7 +74,7 @@ const loginSection = "
                     ";
 const headStyle = "
                 <style>
-                    *{
+                    *{  
                     font-family:sans-serif;
                     }
                     .login-container{
@@ -254,7 +265,7 @@ Description:
             authenticating user,
 Created date:13-OCT_2018,
 */
-class authHelper implements html{
+class authHelper implements html, config{
     /*
     Author:bluepe (aka)Gopinath,
     Description:
@@ -264,6 +275,15 @@ class authHelper implements html{
     */
     public function __construct(){
         session_start();
+        /*
+        Desc:checking if this is a login request.
+        */
+        if($_SERVER['REQUEST_METHOD']=='POST' 
+            && 
+            ltrim($_SERVER['PATH_INFO'],'/') == 'login')
+                {
+                    //check for authenticated user.
+                }
     }
 
     /*
@@ -285,11 +305,10 @@ class authHelper implements html{
     Param:-,
     Returns:-
     created date:13-oct-2018,
+    last modified on:15-oct-2018.
     */
     public function restrictAccess(){
-        echo html::topSection;
-        echo "You are not authorized to access this content";
-        echo html::bottomSection;
+        $this->renderHtml("You are not authorized to access this content");
         die();
     }
 
@@ -302,10 +321,26 @@ class authHelper implements html{
     created date:13-oct-2018,
     */
     public function redirectToLogin(){
-        echo html::topSection;
-        echo html::loginSection;
-        echo html::bottomSection;
+        $this->renderHtml(html::loginSection);
         die();
+    }
+
+    public function performLogin(){
+        hash_equals(config::hash,crypt('admin','$6$rounds=10000$fm-filemanager$'));
+    }
+
+    /*
+    FunctionName:renderHtml,
+    Author:bluepe (aka)Gopinath,
+    Description:render the html with top, middle and bottomn
+    Params: bodySection -  The body section. main content to display.
+    Returns:-,
+    created date:15-oct-2018,
+    */
+    protected function renderHtml($bodySection){
+        echo html::topSection;
+        echo $bodySection;
+        echo html::bottomSection;
     }
 }
 
