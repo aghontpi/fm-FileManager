@@ -2,24 +2,30 @@
 
 > FileManager written in php with Object Oriented Programming.
 
-## NOTE THIS IS NOT COMPLETE YET, STILL IN DEVELOPMENT. I'LL UPDATE THIS IN MY SPARE TIME.
+## STILL IN DEVELOPMENT. I'LL UPDATE THIS IN MY SPARE TIME.
 
 ## Current Scope.
 
 * Navigate through your server(traverse the directories).
+* login with password. (sha256 with 10000 rounds)
+```
+username:anything
+passowrd:admin
+
+```
 
 ## TODO - I WOULD LIKE TO IMPLEMENT.
 
-* can be enabled login with password..
-* can be enabled - connect with database to log every activity.
-* file upload.
-* fix permissions.
-* better ui.
-* unzip files.
-* delete,
-* create folder,
-* zip content,
-* etc.
+- [x] ~~login with password.~~ (turned on or off)
+- [ ] connect with database to log every activity. (turned on or off)
+- [ ] file upload.
+- [ ] fix permissions.
+- [ ] better ui.
+- [ ] unzip files.
+- [ ] delete,
+- [ ] create folder,
+- [ ] zip content,
+- [ ] etc.
 
 ## Notice
 
@@ -40,6 +46,7 @@
 ## Built With
 
 * PHP WITH OOP.
+* HTML,CSS, JS.
 
 ## Authors
 
