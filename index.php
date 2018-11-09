@@ -2,7 +2,7 @@
 /*
 FileName:index.php
 Desscription:Default page,
-Author:bluepe (aka)Gopinath,
+Author:bluepie (aka)Gopinath,
 CreationDate:30-AUG-2018,
 */
 
@@ -62,16 +62,21 @@ const loginSection = "
                             <h3>fm-fileManager</h3>
                         </div>
                         <div class='form-container'>
-                            <form method='POST' action='index.php/login'>
+                            <form method='POST' action='index.php?login'>
                                 <br>
-                                <input type='text' placeholder='username' autocomplete='off'>
-                                <input type='password' placeholder='password' autocomplete='off'>
+                                <input type='text' name='uname' placeholder='username' autocomplete='off'>
+                                <input type='password' name='passwd' placeholder='password' autocomplete='off'>
                                 <br>
                                 <button type='submit' class='btn'>Login</button> 
                             </form>
                         </div>
                     </div>   
                     ";
+
+const passwordError = "
+                        The Password you entered was wrong!.
+                    ";
+
 const headStyle = "
                 <style>
                     *{  
@@ -111,9 +116,9 @@ created date:30-AUG-2018;
 */
 class fm  extends utilities implements images, html{
     public $dir;
-
+    private $scriptLocation;
     /*
-    Author:bluepe (aka)Gopinath,
+    Author:bluepie (aka)Gopinath,
     Description:initialises the utilities constructor,setup html document till body,
     created date:2-oct-2018,
     */
@@ -124,12 +129,21 @@ class fm  extends utilities implements images, html{
     }
 
     /*
-    Author:bluepe (aka)Gopinath,
-    Description:End html document,,
+    Author:bluepie (aka)Gopinath,
+    Description:End html document,
     created date:2-oct-2018,
     */
     public function __destruct(){
         echo html::bottomSection;
+    }
+
+    /*
+    Author:bluepie (aka)Gopinath,
+    Description:getter script location,
+    Created Date:9-nov-2018.
+    */
+    public function _getScriptLocation(){
+        return $this->scriptLocation;
     }
 
     /*
@@ -225,7 +239,7 @@ class utilities{
 
     private $linkTofile;
     /*
-    Author:bluepe (aka)Gopinath,
+    Author:bluepie (aka)Gopinath,
     Description:constructor for utilities.
     created date:2-oct-2018,
     */
@@ -235,7 +249,7 @@ class utilities{
 
     /*
     FunctionName:getLinkWithText,
-    Author:bluepe (aka)Gopinath,
+    Author:bluepie (aka)Gopinath,
     Description:get the linked file with custom text inside,
     Param:$linkText - the desired name,querySting - folder locations,
     Returns: the link with the specified filename/foldername,
@@ -247,7 +261,7 @@ class utilities{
     }
 
     /*
-    Author:bluepe (aka)Gopinath,
+    Author:bluepie (aka)Gopinath,
     Description:construct query string.,
     Param:$query,value,
     Returns: query string with value,
@@ -255,6 +269,19 @@ class utilities{
     */
     protected function generateQueryString($queryString,$value){
         return '?'.http_build_query(array($queryString=>$value));
+    }
+
+    /*
+    Author:bluepie (aka)Gopinath,
+    Description:handles url redirection
+    Param:-
+    Returns: -
+    created date:09-nov-2018,
+    */
+    public static function _emptyQueryString(){
+        if(!empty($_SERVER['QUERY_STRING'])){
+            header("location:index.php");
+        }
     }
 }
 
@@ -267,7 +294,7 @@ Created date:13-OCT_2018,
 */
 class authHelper implements html, config{
     /*
-    Author:bluepe (aka)Gopinath,
+    Author:bluepie (aka)Gopinath,
     Description:
                 constructor for authHelper,
                 start the seesion/continue the session by default,
@@ -278,17 +305,27 @@ class authHelper implements html, config{
         /*
         Desc:checking if this is a login request.
         */
-        if($_SERVER['REQUEST_METHOD']=='POST' 
+        if( $_SERVER['REQUEST_METHOD']=='POST' 
             && 
-            ltrim($_SERVER['PATH_INFO'],'/') == 'login')
+            ($_SERVER['QUERY_STRING'])=='login' 
+             &&
+                !$this->checkSession() )
                 {
-                    //check for authenticated user.
+                    if( $this->performLogin($_POST['uname'],$_POST['passwd']) ){
+                        $_SESSION['authUser'] = $_POST['uname'];
+                      }
+                      else{
+                        $this->renderHtml(html::passwordError);
+                        die();
+                      }
+                      utilities::_emptyQueryString();
+                      
                 }
     }
 
     /*
     FunctionName:checkSession,
-    Author:bluepe (aka)Gopinath,
+    Author:bluepie (aka)Gopinath,
     Description:to check session,
     Param:-,
     Returns: boolean, if authenticated user or not,
@@ -300,7 +337,7 @@ class authHelper implements html, config{
 
     /*
     FunctionName:restrictAccess,
-    Author:bluepe (aka)Gopinath,
+    Author:bluepie (aka)Gopinath,
     Description:To not permit to access content
     Param:-,
     Returns:-
@@ -314,7 +351,7 @@ class authHelper implements html, config{
 
     /*
     FunctionName:redirectToLogin,
-    Author:bluepe (aka)Gopinath,
+    Author:bluepie (aka)Gopinath,
     Description:route the user to login page.
     Param:-,
     Returns:-,
@@ -325,13 +362,13 @@ class authHelper implements html, config{
         die();
     }
 
-    public function performLogin(){
-        hash_equals(config::hash,crypt('admin','$6$rounds=10000$fm-filemanager$'));
+    private function performLogin($_SparamUname,$_SparamPasswd){
+        return hash_equals(config::hash,crypt($_SparamPasswd,'$6$rounds=10000$fm-filemanager$'));
     }
 
     /*
     FunctionName:renderHtml,
-    Author:bluepe (aka)Gopinath,
+    Author:bluepie (aka)Gopinath,
     Description:render the html with top, middle and bottomn
     Params: bodySection -  The body section. main content to display.
     Returns:-,
@@ -350,7 +387,7 @@ Desc:For handling authentication.
 */
 $_OauthHelper = new authHelper();
 if(!$_OauthHelper->checkSession()){
-    
+    utilities::_emptyQueryString();
     $_OauthHelper->redirectToLogin();
 
     /*
@@ -377,6 +414,6 @@ if(isset($_GET['folder'])){
 Object Section.
 */
 $fmObj = new fm();
-$fmObj->displayPre("script located in: ".$fmObj->scriptLocation);
+$fmObj->displayPre("script located in: ".$fmObj->_getScriptLocation());
 $fmObj->tableStructure($fmObj->getDirFile($path));
  ?>
