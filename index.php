@@ -172,39 +172,49 @@ class fm  extends utilities implements images, html{
                                 file/directory name
                                 ),
     Created data: 30-AUG-2018,
-    last-modified:3-OCT-2018,
+    last-modified:18-JAN-2019,
     */
     public function getDirFile($dir=null){
         if(is_null($dir)){ $dir = $_SERVER['DOCUMENT_ROOT']; }
         $fData = "";
         foreach (new DirectoryIterator($dir) as $files) {
-            $fileWithImage =  ($files->isDir())? 
-                                    $this->getLinkWithText( 
-                                                (images::folderImage . " " .$files->getFilename()), 
-                                                $this->generateQueryString(
-                                                            'folder'
-                                                            ,$files->getPath() .'/' .$files->getFilename()
-                                                            )
-                                                ) 
-                                    : images::fileImage . " " .$files->getFilename();
+            if( $files->isDir()) 
+                { $fileWithImage = $this->_build_folderLink($files->getFilename() ,$files->getPath()); }
+            else 
+                { $fileWithImage = images::fileImage . " " .$files->getFilename(); }
+            
+            $lastModified =  $this->_build_td("align='center'", date("h-i-s g:i a",$files->getMTime()));
+            $fileIOwner = $this->_build_td("align='center'", posix_getpwuid($files->getOwner())['name']);
 
-            $lastModified = "<td align='center'>" .
-                                date("h-i-s g:i a",
-                                $files->getMTime()) .
-                            "</td>";
-            $fileIOwner = "<td align='center'>" .
-                                posix_getpwuid($files->getOwner())['name'] .
-                            "</td>";
-            $fData = $fData ."<tr> 
-                                <td>".
-                                $fileWithImage . 
-                                "</td>" . 
-                                $lastModified . 
-                                $fileIOwner .
-                            "</tr>";
+            $fData = $fData . $this->_build_tr($fileWithImage,$lastModified,$fileIOwner);
         }
         return $fData;
 
+    }
+
+    # builds folder item for the table.
+
+    private function _build_folderLink($paramFolderName,$paramFolderPath){
+        # folderName for display.
+        $folder = (images::folderImage . " " .$paramFolderName);
+        # actual folder location.
+        $folderLocation = ($paramFolderPath.'/' .$paramFolderName);
+        # folder click action.
+        $folderAction = $this->generateQueryString('folder',$folderLocation);
+        # binding folderAction with display name.
+        return $this->getLinkWithText($folder, $folderAction);
+    }
+
+    # builds td for tr. 
+
+    private function _build_td($paramProps, $paramData){
+        return "<td " . $paramProps . ">" . $paramData . "</td>"; 
+    }
+
+    # builds each <tr> for the table, 
+
+    private function _build_tr($paramFileImage,$paramTime,$paramOwner){
+        return "<tr> <td>".$paramFileImage . "</td>" . $paramTime . $paramOwner . "</tr>";
     }
 
     /*
