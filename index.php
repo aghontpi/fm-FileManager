@@ -105,8 +105,31 @@ const headStyle = "
                      border-radius:5px;
                     }
 
+                    .btn-actionrow{
+                    	width:auto;
+                    	padding:3px;
+                    }
+
+                    .w-100{
+                     width:100%;
+                    }
+
+                    .ib{
+                     display:inline-block;
+                    }
+
+                    .action-col{
+                     height:30px;
+                    }
+
                 </style>
                   ";
+
+ const actionRow = "
+                   <div class='w-100 ib action-col'>
+                     <a href='index.php?action=logout'> <button class='btn btn-actionrow'>logout</button></a>
+                   </div>
+                   ";
 }
 
 /*
@@ -235,7 +258,12 @@ class fm  extends utilities implements images, html{
               "</table>";
     }
     
-
+        /*
+	Desc:Action Row with logout, zip, delete and other options.
+    */
+    public function _getActionRow(){
+    	echo html::actionRow;
+    }
     
 
 }
@@ -293,6 +321,20 @@ class utilities{
             header("location:index.php");
         }
     }
+
+}
+
+class actionHelper{
+	protected $_action = NULL;
+
+	public function __construct(){
+		if(isset($_GET['action'])){
+			$this->_action = $_GET['action'];
+		}
+	}
+	public function _getAction(){
+		return $this->_action;
+	}
 }
 
 /*
@@ -389,6 +431,16 @@ class authHelper implements html, config{
         echo $bodySection;
         echo html::bottomSection;
     }
+
+    public function _logout(){
+    	unset($_SESSION);
+    	session_destroy();
+    	$this->_reloadPage();
+    }
+
+    public function _reloadPage(){
+    	header("location:index.php");
+    }
 }
 
 
@@ -408,7 +460,8 @@ if(!$_OauthHelper->checkSession()){
     */
 }
 else{
-
+	if((new actionHelper())->_getAction() == 'logout')
+		$_OauthHelper->_logout();
 }
 
 
@@ -420,10 +473,12 @@ if(isset($_GET['folder'])){
     $path = $_GET['folder'];
 }
 
+
 /*
 Object Section.
 */
 $fmObj = new fm();
 $fmObj->displayPre("script located in: ".$fmObj->_getScriptLocation());
+$fmObj->_getActionRow();
 $fmObj->tableStructure($fmObj->getDirFile($path));
  ?>
