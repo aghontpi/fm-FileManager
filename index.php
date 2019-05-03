@@ -197,10 +197,11 @@ class fm  extends utilities implements images, html{
     Created data: 30-AUG-2018,
     last-modified:18-JAN-2019,
     */
+    
     public function getDirFile($dir=null){
         if(is_null($dir)){ $dir = $_SERVER['DOCUMENT_ROOT']; }
         $fData = "";
-        foreach (new DirectoryIterator($dir) as $files) {
+        foreach ($this->_sortedFoldersFiles($dir) as $files) {
             if( $files->isDir()) 
                 { $fileWithImage = $this->_build_folderLink($files->getFilename() ,$files->getPath()); }
             else 
@@ -214,6 +215,28 @@ class fm  extends utilities implements images, html{
         return $fData;
 
     }
+
+    # sorting magic.
+    private function _sortingLogic($paramA, $paramB, $paramSortType = 'alpha'){
+        $paramSortType = (is_null($this->_sortType))? $paramSortType : $this->_sortType;
+        if($paramSortType == 'alpha')
+            return strcmp($paramA->getFilename(), $paramB->getFilename());
+        elseif($paramSortType == 'ralpha')
+            return strcmp($paramB->getFilename(), $paramA->getFilename());
+
+    }
+
+    public function _sortedFoldersFiles($directory){
+        $folders = []; $files = [];
+        foreach (new DirectoryIterator($directory) as $each){
+            if($each->isDir()) $folders[] = clone $each;
+            else $files[] = clone $each;
+        }
+        usort($folders, array($this,'_sortingLogic')); usort($files, array($this,'_sortingLogic'));
+        return array_merge($folders,$files);
+        
+    }
+
 
     # builds folder item for the table.
 
