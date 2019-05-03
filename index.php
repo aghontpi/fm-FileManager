@@ -322,6 +322,10 @@ class utilities{
         }
     }
 
+    public static function _getScriptLocationWithName(){
+        return  $_SERVER['PHP_SELF'];
+    }
+
 }
 
 class actionHelper{
@@ -354,6 +358,7 @@ class authHelper implements html, config{
     */
     public function __construct(){
         session_start();
+        ob_start();
         /*
         Desc:checking if this is a login request.
         */
@@ -368,6 +373,8 @@ class authHelper implements html, config{
                       }
                       else{
                         $this->renderHtml(html::passwordError);
+                        ob_end_flush();
+                        $this->_reloadPage(2);
                         die();
                       }
                       utilities::_emptyQueryString();
@@ -398,6 +405,7 @@ class authHelper implements html, config{
     */
     public function restrictAccess(){
         $this->renderHtml("You are not authorized to access this content");
+        ob_end_flush();
         die();
     }
 
@@ -411,6 +419,7 @@ class authHelper implements html, config{
     */
     public function redirectToLogin(){
         $this->renderHtml(html::loginSection);
+        ob_end_flush();
         die();
     }
 
@@ -438,8 +447,13 @@ class authHelper implements html, config{
     	$this->_reloadPage();
     }
 
-    public function _reloadPage(){
-    	header("location:index.php");
+    public function _reloadPage($reloadWaitTime = NULL, $link = ""){  
+        if(!is_null($reloadWaitTime)){
+            $link .="Refresh:".$reloadWaitTime.";";
+        }
+        $link .= "URL:". utilities::_getScriptLocationWithName();
+        header("$link");
+
     }
 }
 
